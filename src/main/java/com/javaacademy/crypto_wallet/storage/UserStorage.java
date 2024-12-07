@@ -22,4 +22,8 @@ public class UserStorage {
         }
         storage.put(login, user);
     }
+
+    public User update(User user) {
+        return storage.put(user.getLogin(), user);
+    }
 }

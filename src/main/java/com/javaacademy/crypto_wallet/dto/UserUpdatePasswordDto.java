@@ -1,20 +1,23 @@
 package com.javaacademy.crypto_wallet.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserCreateDto {
+public class UserUpdatePasswordDto {
 
     @NotNull
     private String login;
 
+    @JsonProperty("old_password")
     @NotNull
-    private String email;
+    private String oldPassword;
 
+    @JsonProperty("new_password")
     @NotNull
-    private String password;
+    private String newPassword;
 
 }

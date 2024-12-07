@@ -1,0 +1,15 @@
+package com.javaacademy.crypto_wallet.service;
+
+import com.javaacademy.crypto_wallet.dto.UserCreateDto;
+import com.javaacademy.crypto_wallet.dto.UserDto;
+import com.javaacademy.crypto_wallet.dto.UserUpdatePasswordDto;
+
+public interface UserServiceIF {
+
+    void save(UserCreateDto userCreateDto);
+
+    UserDto findByLogin(String login);
+
+    void resetPassword(UserUpdatePasswordDto userForUpdate);
+
+}

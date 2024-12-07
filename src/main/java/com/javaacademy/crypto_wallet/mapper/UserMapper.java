@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
+
     public UserDto convertToUserDto(User user) {
         return new UserDto(user.getLogin());
     }
@@ -18,4 +19,5 @@ public class UserMapper {
                 userCreateDto.getPassword()
         );
     }
+
 }
