@@ -7,6 +7,7 @@ import com.javaacademy.crypto_wallet.entity.CryptoCurrency;
 import com.javaacademy.crypto_wallet.service.CryptoWalletServiceIF;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cryptowallet")
@@ -29,14 +32,20 @@ public class CryptoWalletController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UUID createWallet(@RequestBody @Valid CryptoWalletCreateDto dto) {
+        log.info("POST /cryptowallet wallet = {}", dto);
         String currencyDescription = dto.getCurrency();
         CryptoCurrency currency = CryptoCurrency.getCurrency(currencyDescription);
-        return cryptoWalletService.createWallet(dto.getUserLogin(), currency);
+        UUID walletId = cryptoWalletService.createWallet(dto.getUserLogin(), currency);
+        log.info("Create wallet with id = {}", walletId);
+        return walletId;
     }
 
     @GetMapping
     public List<CryptoWalletDto> getUserWallets(@RequestParam("username") String userLogin) {
-        return cryptoWalletService.getAllUserWallet(userLogin).toList();
+        log.info("GET /cryptowallet?username={}", userLogin);
+        List<CryptoWalletDto> allUserWallet = cryptoWalletService.getAllUserWallet(userLogin).toList();
+        log.info("Found wallets: {}", allUserWallet);
+        return allUserWallet;
     }
 
 }

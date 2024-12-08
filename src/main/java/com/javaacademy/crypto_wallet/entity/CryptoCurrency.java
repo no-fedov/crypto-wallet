@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Getter
 public enum CryptoCurrency {
+
     BTC("bitcoin"),
     ETH("ethereum"),
     SOL("solana");
