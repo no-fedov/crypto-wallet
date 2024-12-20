@@ -6,7 +6,6 @@ import com.jayway.jsonpath.JsonPath;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-@Slf4j
 @Service
 @Profile("prod")
 @RequiredArgsConstructor
@@ -35,7 +33,6 @@ public class CurrencyConverterServiceImpl implements CurrencyConverterService {
             String responseBody = response.body().string();
 
             if (!responseBody.isBlank()) {
-            log.info(JSON_PATH_CONVERTER_TO_USD_TEMPLATE.formatted(currency));
             return JsonPath.parse(responseBody).
                     read(JsonPath.compile(JSON_PATH_CONVERTER_TO_USD_TEMPLATE.formatted(currency)),
                             BigDecimal.class
@@ -45,15 +42,15 @@ public class CurrencyConverterServiceImpl implements CurrencyConverterService {
         throw new RuntimeException("Неудачный запрос");
     }
 
-    private Request constructRequest(String currencyRequestParameter) {
+    private Request constructRequest(String url) {
         return new Request.Builder()
                 .get()
                 .addHeader(property.getHeader(), property.getToken())
-                .url(constructUrl(currencyRequestParameter))
+                .url(constructUrl(url))
                 .build();
     }
 
-    private String constructUrl(String currency) {
-        return property.getUrl() + URL_TEMPLATE.formatted(currency);
+    private String constructUrl(String currencyParameterURL) {
+        return property.getUrl() + URL_TEMPLATE.formatted(currencyParameterURL);
     }
 }

@@ -1,0 +1,6 @@
+app:
+  converter:
+    usd:
+      price: 10000
+    rub:
+      price: 100
