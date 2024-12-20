@@ -2,7 +2,7 @@ package com.javaacademy.crypto_wallet.controller;
 
 import com.javaacademy.crypto_wallet.dto.UserCreateDto;
 import com.javaacademy.crypto_wallet.dto.UserUpdatePasswordDto;
-import com.javaacademy.crypto_wallet.service.UserServiceIF;
+import com.javaacademy.crypto_wallet.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final UserServiceIF userService;
+    private final UserService userService;
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
