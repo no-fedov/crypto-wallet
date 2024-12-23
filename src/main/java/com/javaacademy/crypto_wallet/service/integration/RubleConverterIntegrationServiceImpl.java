@@ -1,4 +1,4 @@
-package com.javaacademy.crypto_wallet.service.imp;
+package com.javaacademy.crypto_wallet.service.integration;
 
 import com.javaacademy.crypto_wallet.config.RubleServiceProperty;
 import com.javaacademy.crypto_wallet.service.RubleConverterService;
@@ -18,7 +18,7 @@ import java.math.RoundingMode;
 @Service
 @Profile("prod")
 @RequiredArgsConstructor
-public class RubleConverterServiceImpl implements RubleConverterService {
+public class RubleConverterIntegrationServiceImpl implements RubleConverterService {
 
     private static final String JSON_PATH_CONVERTER_USD = "$['rates'].['USD']";
     private final OkHttpClient client;
@@ -26,7 +26,7 @@ public class RubleConverterServiceImpl implements RubleConverterService {
 
     @Override
     public BigDecimal convertToRUB(BigDecimal quantityUSD) {
-        return quantityUSD.divide(getPriceUSD(), RoundingMode.DOWN).setScale(10, RoundingMode.HALF_UP);
+        return quantityUSD.divide(getPriceUSD(), 10, RoundingMode.DOWN);
     }
 
     @Override

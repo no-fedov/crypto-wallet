@@ -4,6 +4,8 @@ import com.javaacademy.crypto_wallet.dto.UserCreateDto;
 import com.javaacademy.crypto_wallet.dto.UserDto;
 import com.javaacademy.crypto_wallet.dto.UserUpdatePasswordDto;
 import com.javaacademy.crypto_wallet.entity.User;
+import com.javaacademy.crypto_wallet.exception.EntityNotFoundException;
+import com.javaacademy.crypto_wallet.exception.InvalidPasswordException;
 import com.javaacademy.crypto_wallet.mapper.UserMapper;
 import com.javaacademy.crypto_wallet.repository.UserRepository;
 import com.javaacademy.crypto_wallet.service.UserService;
@@ -23,10 +25,10 @@ public class UserServiceImp implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public void save(UserCreateDto userCreateDto) {
-        User newUser = userMapper.convertToUser(userCreateDto);
+    public void save(UserCreateDto dto) {
+        User newUser = userMapper.convertToUser(dto);
         userRepository.save(newUser);
-        log.info("User with login = {} is saved", userCreateDto.getLogin() );
+        log.info("User with login = {} is saved", dto.getLogin());
     }
 
     @Override
@@ -37,14 +39,14 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void resetPassword(UserUpdatePasswordDto userForUpdate) {
-        User foundUser = findUserByLogin(userForUpdate.getLogin());
-        if (!Objects.equals(foundUser.getPassword(), userForUpdate.getOldPassword())) {
-            throw new RuntimeException("Invalid password");
+    public void resetPassword(UserUpdatePasswordDto dto) {
+        User currentUser = findUserByLogin(dto.getLogin());
+        if (!Objects.equals(currentUser.getPassword(), dto.getOldPassword())) {
+            throw new InvalidPasswordException("Invalid password");
         }
-        foundUser.setPassword(userForUpdate.getNewPassword());
-        User updatedUser = userRepository.update(foundUser);
-        UserDto updatedUserDto = userMapper.convertToUserDto(updatedUser);
+        currentUser.setPassword(dto.getNewPassword());
+        userRepository.update(currentUser);
+        UserDto updatedUserDto = userMapper.convertToUserDto(currentUser);
         log.info("User {} update password", updatedUserDto);
     }
 
@@ -52,7 +54,7 @@ public class UserServiceImp implements UserService {
         Optional<User> foundUser = userRepository.getByLogin(login);
         if (foundUser.isEmpty()) {
             log.warn("User login = {} was not found", login);
-            throw new RuntimeException("User with login = %s not found".formatted(login));
+            throw new EntityNotFoundException("User with login = %s not found".formatted(login));
         }
         return foundUser.get();
     }

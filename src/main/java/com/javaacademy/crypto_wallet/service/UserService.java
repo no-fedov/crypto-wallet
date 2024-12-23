@@ -6,10 +6,10 @@ import com.javaacademy.crypto_wallet.dto.UserUpdatePasswordDto;
 
 public interface UserService {
 
-    void save(UserCreateDto userCreateDto);
+    void save(UserCreateDto dto);
 
     UserDto findByLogin(String login);
 
-    void resetPassword(UserUpdatePasswordDto userForUpdate);
+    void resetPassword(UserUpdatePasswordDto dto);
 
 }

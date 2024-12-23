@@ -1,7 +1,7 @@
-package com.javaacademy.crypto_wallet.service.imp;
+package com.javaacademy.crypto_wallet.service.integration;
 
 import com.javaacademy.crypto_wallet.config.CurrencyServiceProperty;
-import com.javaacademy.crypto_wallet.service.CurrencyConverterService;
+import com.javaacademy.crypto_wallet.service.DollarConverterService;
 import com.jayway.jsonpath.JsonPath;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Service
 @Profile("prod")
 @RequiredArgsConstructor
-public class CurrencyConverterServiceImpl implements CurrencyConverterService {
+public class DollarConverterIntegrationServiceImpl implements DollarConverterService {
 
     private final OkHttpClient client;
     private final CurrencyServiceProperty property;

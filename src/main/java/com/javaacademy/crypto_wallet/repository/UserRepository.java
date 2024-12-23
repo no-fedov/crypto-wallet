@@ -27,10 +27,9 @@ public class UserRepository {
         log.info("User with login = {} is saved", user.getLogin());
     }
 
-    public User update(User user) {
-        User updatedUser = userStorage.update(user);
-        log.info("User with login = {} has been updated", userMapper.convertToUserDto(updatedUser));
-        return updatedUser;
+    public void update(User user) {
+        log.info("User with login = {} has been updated", userMapper.convertToUserDto(user));
+        userStorage.update(user);
     }
 
 }

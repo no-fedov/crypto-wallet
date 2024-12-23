@@ -2,7 +2,7 @@ package com.javaacademy.crypto_wallet.service;
 
 import java.math.BigDecimal;
 
-public interface CurrencyConverterService {
+public interface DollarConverterService {
 
     BigDecimal getCostInUSD(String currency);
 }

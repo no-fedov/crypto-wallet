@@ -9,10 +9,10 @@ public class CryptoWalletMapper {
 
     public CryptoWalletDto convertToCryptoWalletDto(CryptoWallet cryptoWallet) {
         return new CryptoWalletDto(
+                cryptoWallet.getId(),
                 cryptoWallet.getOwnerLogin(),
                 cryptoWallet.getCurrency(),
-                cryptoWallet.getAmountCurrency(),
-                cryptoWallet.getId()
+                cryptoWallet.getBalance()
         );
     }
 

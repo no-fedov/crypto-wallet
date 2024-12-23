@@ -1,6 +1,8 @@
 package com.javaacademy.crypto_wallet.storage;
 
 import com.javaacademy.crypto_wallet.entity.CryptoWallet;
+import com.javaacademy.crypto_wallet.exception.EntityAlreadyExistException;
+import com.javaacademy.crypto_wallet.exception.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -18,7 +20,15 @@ public class CryptoWalletStorage {
     public void save(CryptoWallet cryptoWallet) {
         UUID id = cryptoWallet.getId();
         if (storage.containsKey(id)) {
-            throw new RuntimeException("CryptoWallet with id = '%s' already exists".formatted(id));
+            throw new EntityAlreadyExistException("CryptoWallet with id = '%s' already exists".formatted(id));
+        }
+        storage.put(id, cryptoWallet);
+    }
+
+    public void update(CryptoWallet cryptoWallet) {
+        UUID id = cryptoWallet.getId();
+        if (!storage.containsKey(id)) {
+            throw new EntityNotFoundException("Can't update. CryptoWallet with id = '%s' does not exist".formatted(id));
         }
         storage.put(id, cryptoWallet);
     }

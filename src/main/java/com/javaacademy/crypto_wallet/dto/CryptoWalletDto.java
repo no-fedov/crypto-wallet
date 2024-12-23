@@ -11,9 +11,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CryptoWalletDto {
 
+    private UUID id;
     private String ownerLogin;
     private CryptoCurrency currency;
-    private BigDecimal amountCurrency;
-    private UUID id;
+    private BigDecimal balance;
 
 }

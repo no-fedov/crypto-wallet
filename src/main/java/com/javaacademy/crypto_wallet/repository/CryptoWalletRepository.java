@@ -22,6 +22,10 @@ public class CryptoWalletRepository {
         log.info("Wallet with id = {} is saved", cryptoWallet.getId());
     }
 
+    public void update(CryptoWallet cryptoWallet) {
+        storage.update(cryptoWallet);
+    }
+
     public Optional<CryptoWallet> getById(UUID id) {
         log.info("Search wallet where id = {}", id);
         return storage.getById(id);

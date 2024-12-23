@@ -20,6 +20,7 @@
 		<jackson.version>2.17.2</jackson.version>
 		<okhttp.version>4.12.0</okhttp.version>
 		<json-path.version>2.9.0</json-path.version>
+		<jacoco.version>0.8.12</jacoco.version>
 	</properties>
 
 	<dependencies>
@@ -75,6 +76,39 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/CryptoWalletApplication.*</exclude>
+					</excludes>
+					<output>file</output>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

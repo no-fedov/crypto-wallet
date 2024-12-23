@@ -1,7 +1,7 @@
 package com.javaacademy.crypto_wallet.config;
 
+import com.javaacademy.crypto_wallet.service.DollarConverterService;
 import com.javaacademy.crypto_wallet.service.RubleConverterService;
-import com.javaacademy.crypto_wallet.service.CurrencyConverterService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,15 +12,16 @@ import java.math.RoundingMode;
 
 @Profile("local")
 @Configuration
-public class ConverterServiceConfig {
+public class ConverterServiceLocalConfig {
 
     @Value("${app.converter.usd.price}")
     private BigDecimal cryptoPriceInUSD;
+
     @Value("${app.converter.rub.price}")
     private BigDecimal priceUSDinRUB;
 
     @Bean
-    public CurrencyConverterService converterUSDService() {
+    public DollarConverterService converterUSDService() {
         return currency -> cryptoPriceInUSD;
     }
 
@@ -29,12 +30,12 @@ public class ConverterServiceConfig {
         return new RubleConverterService() {
             @Override
             public BigDecimal convertToRUB(BigDecimal quantityUSD) {
-                return priceUSDinRUB.divide(quantityUSD, RoundingMode.DOWN);
+                return priceUSDinRUB.multiply(quantityUSD);
             }
 
             @Override
             public BigDecimal convertToUSD(BigDecimal quantityRUB) {
-                return quantityRUB.multiply(priceUSDinRUB);
+                return quantityRUB.divide(priceUSDinRUB, 10, RoundingMode.HALF_DOWN);
             }
         };
     }

@@ -10,9 +10,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CryptoWallet {
 
-    private String ownerLogin;
-    private CryptoCurrency currency;
-    private BigDecimal amountCurrency;
-    private UUID id;
+    private final UUID id;
+    private final String ownerLogin;
+    private final CryptoCurrency currency;
+    private BigDecimal balance;
 
 }
