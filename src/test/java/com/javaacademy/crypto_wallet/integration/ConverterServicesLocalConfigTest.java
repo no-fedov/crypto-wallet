@@ -1,4 +1,4 @@
-package com.javaacademy.crypto_wallet.unit;
+package com.javaacademy.crypto_wallet.integration;
 
 import com.javaacademy.crypto_wallet.service.DollarConverterService;
 import com.javaacademy.crypto_wallet.service.RubleConverterService;
