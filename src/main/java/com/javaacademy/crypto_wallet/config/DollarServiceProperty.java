@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties(prefix = "app.services.currency-converter")
-public class CurrencyServiceProperty {
+public class DollarServiceProperty {
 
     private String url;
     private String header;

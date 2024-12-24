@@ -1,6 +1,6 @@
 package com.javaacademy.crypto_wallet.service.integration;
 
-import com.javaacademy.crypto_wallet.config.CurrencyServiceProperty;
+import com.javaacademy.crypto_wallet.config.DollarServiceProperty;
 import com.javaacademy.crypto_wallet.service.DollarConverterService;
 import com.jayway.jsonpath.JsonPath;
 import lombok.Cleanup;
@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 public class DollarConverterIntegrationServiceImpl implements DollarConverterService {
 
     private final OkHttpClient client;
-    private final CurrencyServiceProperty property;
+    private final DollarServiceProperty property;
     private static final String URL_TEMPLATE = "/simple/price?ids=%s&vs_currencies=usd";
     private static final String JSON_PATH_CONVERTER_TO_USD_TEMPLATE = "$['%s']['usd']";
 
