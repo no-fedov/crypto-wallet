@@ -1,11 +1,2 @@
 server:
   port: 8008
-
-app:
-  services:
-    currency-converter:
-      url: https://api.coingecko.com/api/v3
-      header: x_cg_demo_api_key
-      token: xCVqoMDWXQpoSpqNTCshp5Ua
-    usd-converter:
-      url: https://www.cbr-xml-daily.ru/latest.js
