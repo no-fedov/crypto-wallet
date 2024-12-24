@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,30 +51,29 @@ public class CryptoWalletController {
         return allUserWallet;
     }
 
-    // TODO: увеличить баланс
     @PostMapping("/refill")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void refillRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
-
+        cryptoWalletService.refillBalance(dto.getId(), dto.getRubAmount());
     }
 
-    // TODO: уменьшить баланс
     @PostMapping("/withdrawal")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void withdrawRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
-
+    @ResponseStatus(HttpStatus.CREATED)
+    public String withdrawRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
+       String requestBody = cryptoWalletService.withdrawalBalance(dto.getId(), dto.getRubAmount());
+       return requestBody;
     }
 
-    // TODO: получить счет в рублевом эквиваленте
     @GetMapping("/balance/{id}")
-    public void getUserRubWallet(@PathVariable Integer id) {
-
+    public BigDecimal getUserRubWallet(@PathVariable("id") String walletId) {
+        return cryptoWalletService.getBalanceInRubles(UUID.fromString(walletId))
+                .setScale(2, RoundingMode.DOWN);
     }
 
-    // TODO: получить все счета в рублевом эквиваленте
     @GetMapping("/balance")
-    public void getUserRubWallets(@RequestParam("username") String userLogin) {
-
+    public BigDecimal getUserRubWallets(@RequestParam("username") String userLogin) {
+        return cryptoWalletService.getBalanceAllWalletsInRuble(userLogin)
+                .setScale(2, RoundingMode.DOWN);
     }
 
 }

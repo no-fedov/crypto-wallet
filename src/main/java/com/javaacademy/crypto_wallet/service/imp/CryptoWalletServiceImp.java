@@ -7,10 +7,10 @@ import com.javaacademy.crypto_wallet.exception.EntityNotFoundException;
 import com.javaacademy.crypto_wallet.exception.InsufficientFundsException;
 import com.javaacademy.crypto_wallet.mapper.CryptoWalletMapper;
 import com.javaacademy.crypto_wallet.repository.CryptoWalletRepository;
+import com.javaacademy.crypto_wallet.repository.UserRepository;
 import com.javaacademy.crypto_wallet.service.CryptoWalletService;
 import com.javaacademy.crypto_wallet.service.DollarConverterService;
 import com.javaacademy.crypto_wallet.service.RubleConverterService;
-import com.javaacademy.crypto_wallet.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
     private final static String TEMPLATE_FOR_CURRENCY_SALE = "Операция прошла успешно. Продано %s %s.";
 
     private final CryptoWalletMapper walletMapper;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final CryptoWalletRepository cryptoWalletRepository;
     private final DollarConverterService dollarConverterService;
     private final RubleConverterService rubleConverterService;
@@ -36,21 +36,21 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
     @Override
     public CryptoWalletDto getById(UUID id) {
         log.info("Start search wallet with id = {}", id);
-        CryptoWallet wallet = getCryptoWalletById(id);
+        CryptoWallet wallet = findCryptoWalletById(id);
         return walletMapper.convertToCryptoWalletDto(wallet);
     }
 
     @Override
     public Stream<CryptoWalletDto> getAllUserWallet(String login) {
         log.info("Start search all user's wallets by login = {}", login);
-        userService.findByLogin(login);
+        verifyExistenceUser(login);
         return cryptoWalletRepository.getAllUserWallet(login).map(walletMapper::convertToCryptoWalletDto);
     }
 
     @Override
     public UUID createWallet(String login, CryptoCurrency currency) {
         log.info("Start creating wallet with currency = {} , userLogin = {}", currency.getDescription(), login);
-        userService.findByLogin(login);
+        verifyExistenceUser(login);
         CryptoWallet newWallet = new CryptoWallet(
                 UUID.randomUUID(),
                 login,
@@ -64,7 +64,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
 
     @Override
     public void refillBalance(UUID walletId, BigDecimal rubleAmount) {
-        CryptoWallet wallet = getCryptoWalletById(walletId);
+        CryptoWallet wallet = findCryptoWalletById(walletId);
         String currency = wallet.getCurrency().getDescription();
         BigDecimal balance = wallet.getBalance();
         BigDecimal refill = calculateTransactionCostInCurrency(currency, rubleAmount);
@@ -75,7 +75,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
 
     @Override
     public String withdrawalBalance(UUID walletId, BigDecimal rubleAmount) {
-        CryptoWallet wallet = getCryptoWalletById(walletId);
+        CryptoWallet wallet = findCryptoWalletById(walletId);
         String currency = wallet.getCurrency().getDescription();
         BigDecimal balance = wallet.getBalance();
         BigDecimal withdrawal = calculateTransactionCostInCurrency(currency, rubleAmount);
@@ -90,7 +90,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
 
     @Override
     public BigDecimal getBalanceInRubles(UUID walletId) {
-        CryptoWallet wallet = getCryptoWalletById(walletId);
+        CryptoWallet wallet = findCryptoWalletById(walletId);
         String currency = wallet.getCurrency().getDescription();
         BigDecimal balance = wallet.getBalance();
         return convertWalletBalanceToRuble(currency, balance);
@@ -98,7 +98,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
 
     @Override
     public BigDecimal getBalanceAllWalletsInRuble(String userLogin) {
-        userService.findByLogin(userLogin);
+        verifyExistenceUser(userLogin);
         return cryptoWalletRepository.getAllUserWallet(userLogin)
                 .map(wallet -> convertWalletBalanceToRuble(wallet.getCurrency().getDescription(),
                         wallet.getBalance())).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -116,9 +116,14 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
         return rubleConverterService.convertToRUB(balanceInUSD);
     }
 
-    private CryptoWallet getCryptoWalletById(UUID id) {
+    private CryptoWallet findCryptoWalletById(UUID id) {
         return cryptoWalletRepository.getById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Wallet wit UUID = %s is not exist".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Wallet with UUID = %s is not exist".formatted(id)));
+    }
+
+    private void verifyExistenceUser(String login) {
+        userRepository.getByLogin(login)
+                .orElseThrow(() -> new EntityNotFoundException("User with login = %s is not exist".formatted(login)));
     }
 
 }
