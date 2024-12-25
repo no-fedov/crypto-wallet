@@ -20,6 +20,8 @@ import java.math.RoundingMode;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static java.math.BigDecimal.ZERO;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -55,7 +57,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
                 UUID.randomUUID(),
                 login,
                 currency,
-                BigDecimal.ZERO
+                ZERO
         );
         cryptoWalletRepository.save(newWallet);
         log.info("Wallet is saved");
@@ -101,7 +103,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
         verifyExistenceUser(userLogin);
         return cryptoWalletRepository.getAllUserWallet(userLogin)
                 .map(wallet -> convertWalletBalanceToRuble(wallet.getCurrency().getDescription(),
-                        wallet.getBalance())).reduce(BigDecimal.ZERO, BigDecimal::add);
+                        wallet.getBalance())).reduce(ZERO, BigDecimal::add);
     }
 
     private BigDecimal calculateTransactionCostInCurrency(String currency, BigDecimal rubleAmount) {

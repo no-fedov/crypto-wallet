@@ -1,5 +1,6 @@
 package com.javaacademy.crypto_wallet.controller;
 
+import com.javaacademy.crypto_wallet.dto.ErrorResponseDto;
 import com.javaacademy.crypto_wallet.exception.EntityAlreadyExistException;
 import com.javaacademy.crypto_wallet.exception.EntityNotFoundException;
 import com.javaacademy.crypto_wallet.exception.InsufficientFundsException;
@@ -10,8 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
-
 @Slf4j
 @RestControllerAdvice
 public class ExceptionApiHandler {
@@ -20,15 +19,15 @@ public class ExceptionApiHandler {
             InsufficientFundsException.class,
             InvalidPasswordException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> entityExceptionHandler(RuntimeException e) {
+    public ErrorResponseDto entityExceptionHandler(RuntimeException e) {
         log.warn(e.getMessage(), e);
-        return Map.of("Ошибка:", e.getMessage());
+        return new ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> notFoundExceptionHandler(RuntimeException e) {
+    public ErrorResponseDto notFoundExceptionHandler(RuntimeException e) {
         log.warn(e.getMessage(), e);
-        return Map.of("Ошибка:", e.getMessage());
+        return new ErrorResponseDto(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 }
