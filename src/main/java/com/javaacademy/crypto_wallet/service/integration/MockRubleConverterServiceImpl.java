@@ -12,7 +12,7 @@ import java.math.RoundingMode;
 @Profile("local")
 public class MockRubleConverterServiceImpl implements RubleConverterService {
 
-    @Value("${app.converter.rub.price}")
+    @Value("${app.converter.usd.price}")
     private BigDecimal priceUSDinRUB;
 
     @Override

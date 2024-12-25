@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Profile("local")
 public class MockDollarConverterServiceImpl implements DollarConverterService {
 
-    @Value("${app.converter.usd.price}")
+    @Value("${app.converter.crypto.price}")
     private BigDecimal cryptoPriceInUSD;
 
     @Override

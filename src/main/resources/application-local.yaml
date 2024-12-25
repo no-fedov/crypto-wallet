@@ -1,6 +1,6 @@
 app:
   converter:
-    usd:
+    crypto:
       price: 10000
-    rub:
+    usd:
       price: 100
