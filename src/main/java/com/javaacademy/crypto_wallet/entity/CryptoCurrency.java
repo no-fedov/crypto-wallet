@@ -1,5 +1,6 @@
 package com.javaacademy.crypto_wallet.entity;
 
+import com.javaacademy.crypto_wallet.exception.CryptoCurrencyException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -25,6 +26,6 @@ public enum CryptoCurrency {
             return currencyMap.get(currency);
         }
 
-        throw new RuntimeException("Currency '%s' is exist".formatted(currency));
+        throw new CryptoCurrencyException("Currency '%s' is not exist".formatted(currency));
     }
 }

@@ -1,6 +1,7 @@
 package com.javaacademy.crypto_wallet.controller;
 
 import com.javaacademy.crypto_wallet.dto.ErrorResponseDto;
+import com.javaacademy.crypto_wallet.exception.CryptoCurrencyException;
 import com.javaacademy.crypto_wallet.exception.EntityAlreadyExistException;
 import com.javaacademy.crypto_wallet.exception.EntityNotFoundException;
 import com.javaacademy.crypto_wallet.exception.InsufficientFundsException;
@@ -24,7 +25,8 @@ public class ExceptionApiHandler {
         return new ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
+    @ExceptionHandler({EntityNotFoundException.class,
+            CryptoCurrencyException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponseDto notFoundExceptionHandler(RuntimeException e) {
         log.warn(e.getMessage(), e);

@@ -1,11 +1,19 @@
 package com.javaacademy.crypto_wallet.controller;
 
 
-import com.javaacademy.crypto_wallet.dto.CryptoWalletTransactionDto;
 import com.javaacademy.crypto_wallet.dto.CryptoWalletCreateDto;
 import com.javaacademy.crypto_wallet.dto.CryptoWalletDto;
+import com.javaacademy.crypto_wallet.dto.CryptoWalletTransactionDto;
+import com.javaacademy.crypto_wallet.dto.ErrorResponseDto;
 import com.javaacademy.crypto_wallet.entity.CryptoCurrency;
 import com.javaacademy.crypto_wallet.service.CryptoWalletService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +36,42 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cryptowallet")
+@Tag(name = "Контроллер для работы с криптокошельками",
+        description = "Содержит логику, предоставленную пользователю, для работы с криптокошельками")
 public class CryptoWalletController {
 
     private final CryptoWalletService cryptoWalletService;
 
+    @Operation(
+            summary = "Создает криптокошелек",
+            description = "Сохраняет критокошелек для существующего пользователя и возращает номер кошелька")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Криптокошелек создан",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UUID.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Не найден пользователь или валюта, для которых создается кошелек",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Ошибка на сервере",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UUID createWallet(@RequestBody @Valid CryptoWalletCreateDto dto) {
@@ -43,6 +83,40 @@ public class CryptoWalletController {
         return walletId;
     }
 
+    @Operation(
+            summary = "Возвращет пользователю его криптокошельки",
+            description = "Пользователю выводится список кошельков с их номером, валютой и балансом")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Найдены криптокошельки",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(
+                                    schema = @Schema(
+                                            implementation = CryptoWalletDto.class
+                                    )
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Не найден пользователь",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Ошибка на сервере",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @GetMapping
     public List<CryptoWalletDto> getUserWallets(@RequestParam("username") String userLogin) {
         log.info("GET /cryptowallet?username={}", userLogin);
@@ -51,25 +125,139 @@ public class CryptoWalletController {
         return allUserWallet;
     }
 
+    @Operation(
+            summary = "Пополняет баланс кошелька на указанную сумму",
+            description = "Пользователь передает номер кошелька и сумму пополнения в рублях")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Баланс кошелька пополнен"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Не найден кошелек",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Ошибка на сервере",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @PostMapping("/refill")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void refillRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
         cryptoWalletService.refillBalance(dto.getId(), dto.getRubAmount());
     }
 
+    @Operation(
+            summary = "Списывает с баланса кошелька указанную сумму",
+            description = "Пользователь передает номер кошелька и сумму списания в рублях")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Деньги списаны",
+                    content = @Content(
+                            mediaType = "text/plain",
+                            schema = @Schema(implementation = String.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Не найден кошелек",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Ошибка на сервере",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @PostMapping("/withdrawal")
-    @ResponseStatus(HttpStatus.CREATED)
     public String withdrawRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
-       String requestBody = cryptoWalletService.withdrawalBalance(dto.getId(), dto.getRubAmount());
-       return requestBody;
+        return cryptoWalletService.withdrawalBalance(dto.getId(), dto.getRubAmount());
     }
 
+    @Operation(
+            summary = "Узнать баланса кошелька в рублях",
+            description = "Возвращает баланс криптокошелька в рублях")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Баланс в рублях",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = BigDecimal.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Не найден кошелек",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Ошибка на сервере",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @GetMapping("/balance/{id}")
     public BigDecimal getUserRubWallet(@PathVariable("id") String walletId) {
         return cryptoWalletService.getBalanceInRubles(UUID.fromString(walletId))
                 .setScale(2, RoundingMode.DOWN);
     }
 
+    @Operation(
+            summary = "Узнать сколько денег у пользователя в рублях",
+            description = "Возвращает общий баланс со всех криптокошелька в рублях")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Баланс в рублях",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = BigDecimal.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Не найден пользователь",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Ошибка на сервере",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @GetMapping("/balance")
     public BigDecimal getUserRubWallets(@RequestParam("username") String userLogin) {
         return cryptoWalletService.getBalanceAllWalletsInRuble(userLogin)
