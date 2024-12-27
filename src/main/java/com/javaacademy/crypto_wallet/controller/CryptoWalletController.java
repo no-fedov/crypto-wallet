@@ -8,6 +8,7 @@ import com.javaacademy.crypto_wallet.dto.ErrorResponseDto;
 import com.javaacademy.crypto_wallet.entity.CryptoCurrency;
 import com.javaacademy.crypto_wallet.service.CryptoWalletService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -223,7 +224,9 @@ public class CryptoWalletController {
     }
     )
     @GetMapping("/balance/{id}")
-    public BigDecimal getUserRubWallet(@PathVariable("id") String walletId) {
+    public BigDecimal getUserRubWallet(@PathVariable("id")
+                                       @Parameter(description = "Уникальный номер кошелька в формате UUID")
+                                       String walletId) {
         return cryptoWalletService.getBalanceInRubles(UUID.fromString(walletId))
                 .setScale(2, RoundingMode.DOWN);
     }
