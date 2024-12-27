@@ -32,4 +32,11 @@ public class ExceptionApiHandler {
         log.warn(e.getMessage(), e);
         return new ErrorResponseDto(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseDto serverExceptionHandler(Throwable e) {
+        log.error(e.getMessage(), e);
+        return new ErrorResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    }
 }
