@@ -19,6 +19,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -166,7 +168,7 @@ public class CryptoWalletController {
                     responseCode = "200",
                     description = "Деньги списаны",
                     content = @Content(
-                            mediaType = "text/plain",
+                            mediaType = "application/json",
                             schema = @Schema(implementation = String.class)
                     )
             ),
@@ -188,9 +190,12 @@ public class CryptoWalletController {
             )
     }
     )
-    @PostMapping("/withdrawal")
-    public String withdrawRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
-        return cryptoWalletService.withdrawalBalance(dto.getId(), dto.getRubAmount());
+    @PostMapping(value = "/withdrawal", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> withdrawRubBalance(@RequestBody CryptoWalletTransactionDto dto) {
+        String response = cryptoWalletService.withdrawalBalance(dto.getId(), dto.getRubAmount());
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
     }
 
     @Operation(
@@ -224,7 +229,7 @@ public class CryptoWalletController {
     }
     )
     @GetMapping("/balance/{id}")
-    public BigDecimal getUserRubWallet(@PathVariable("id")
+    public BigDecimal getRubBalanceWallet(@PathVariable("id")
                                        @Parameter(description = "Уникальный номер кошелька в формате UUID")
                                        String walletId) {
         return cryptoWalletService.getBalanceInRubles(UUID.fromString(walletId))
@@ -262,7 +267,7 @@ public class CryptoWalletController {
     }
     )
     @GetMapping("/balance")
-    public BigDecimal getUserRubWallets(@RequestParam("username") String userLogin) {
+    public BigDecimal getRubBalanceWallets(@RequestParam("username") String userLogin) {
         return cryptoWalletService.getBalanceAllWalletsInRuble(userLogin)
                 .setScale(2, RoundingMode.DOWN);
     }
