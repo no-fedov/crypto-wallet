@@ -10,8 +10,10 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -22,13 +24,14 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
-)
+@ActiveProfiles("local")
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@ActiveProfiles("local")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class UserControllerTest {
+
+    @Value("${server.port}")
+    private int port;
 
     @Autowired
     private UserStorage userStorage;
@@ -38,16 +41,22 @@ public class UserControllerTest {
     private static final String USER_PASSWORD_OLD = "111111";
     private static final String USER_PASSWORD_NEW = "222222";
 
-    private final RequestSpecification requestSpecification = new RequestSpecBuilder()
-            .setPort(9090)
-            .setBasePath("/user")
-            .setContentType(ContentType.JSON)
-            .log(LogDetail.ALL)
-            .build();
+    private RequestSpecification requestSpecification;
+    private ResponseSpecification responseSpecification;
 
-    private final ResponseSpecification responseSpecification = new ResponseSpecBuilder()
-            .log(LogDetail.ALL)
-            .build();
+    @PostConstruct
+    public void setSpecification() {
+        requestSpecification = new RequestSpecBuilder()
+                .setPort(port)
+                .setBasePath("/user")
+                .setContentType(ContentType.JSON)
+                .log(LogDetail.ALL)
+                .build();
+
+        responseSpecification = new ResponseSpecBuilder()
+                .log(LogDetail.ALL)
+                .build();
+    }
 
     @Test
     public void saveUserSuccess() {
@@ -81,7 +90,11 @@ public class UserControllerTest {
     @Test
     public void resetPasswordSuccess() {
         userStorage.save(new User(USER_LOGIN, USER_EMAIL, USER_PASSWORD_OLD));
-        UserUpdatePasswordDto userCreateDto = new UserUpdatePasswordDto(USER_LOGIN, USER_PASSWORD_OLD, USER_PASSWORD_NEW);
+        UserUpdatePasswordDto userCreateDto = new UserUpdatePasswordDto(
+                USER_LOGIN,
+                USER_PASSWORD_OLD,
+                USER_PASSWORD_NEW
+        );
         given(requestSpecification)
                 .body(userCreateDto)
                 .post("/reset-password")
@@ -96,7 +109,11 @@ public class UserControllerTest {
 
     @Test
     public void resetPasswordNotFoundUserUnsuccessful() {
-        UserUpdatePasswordDto userCreateDto = new UserUpdatePasswordDto(USER_LOGIN, USER_PASSWORD_OLD, USER_PASSWORD_NEW);
+        UserUpdatePasswordDto userCreateDto = new UserUpdatePasswordDto(
+                USER_LOGIN,
+                USER_PASSWORD_OLD,
+                USER_PASSWORD_NEW
+        );
         given(requestSpecification)
                 .body(userCreateDto)
                 .post("/reset-password")
@@ -109,7 +126,11 @@ public class UserControllerTest {
     @Test
     public void resetPasswordInvalidEnteredPasswordUnsuccessful() {
         userStorage.save(new User(USER_LOGIN, USER_EMAIL, USER_PASSWORD_OLD));
-        UserUpdatePasswordDto userCreateDto = new UserUpdatePasswordDto(USER_LOGIN, USER_PASSWORD_NEW, USER_PASSWORD_NEW);
+        UserUpdatePasswordDto userCreateDto = new UserUpdatePasswordDto(
+                USER_LOGIN,
+                USER_PASSWORD_NEW,
+                USER_PASSWORD_NEW
+        );
         given(requestSpecification)
                 .body(userCreateDto)
                 .post("/reset-password")

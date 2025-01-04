@@ -21,12 +21,14 @@ import java.math.RoundingMode;
 public class RubleConverterIntegrationServiceImpl implements RubleConverterService {
 
     private static final String JSON_PATH_CONVERTER_USD = "$['rates'].['USD']";
+    private static final int SCALE_FOR_ROUND_OPERATION = 10;
+
     private final OkHttpClient client;
     private final RubleServiceProperty property;
 
     @Override
     public BigDecimal convertToRUB(BigDecimal quantityUSD) {
-        return quantityUSD.divide(getPriceUSD(), 10, RoundingMode.DOWN);
+        return quantityUSD.divide(getPriceUSD(), SCALE_FOR_ROUND_OPERATION, RoundingMode.DOWN);
     }
 
     @Override

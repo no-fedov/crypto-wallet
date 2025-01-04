@@ -14,11 +14,14 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -39,22 +42,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CryptoWalletControllerTest {
 
+    @Value("${server.port}")
+    private int port;
+
     private static final String USER_LOGIN = "den4ik";
     private static final String USER_EMAIL = "email@mail.ru";
     private static final String USER_PASSWORD = "111111";
     private static final String NOT_EXIST_USER_LOGIN = "RANDOM_LOGIN";
     private static final String NOT_EXIST_CURRENCY = "RANDOM_CURRENCY";
 
-    private final RequestSpecification requestSpecification = new RequestSpecBuilder()
-            .setPort(9090)
-            .setBasePath("/cryptowallet")
-            .setContentType(ContentType.JSON)
-            .log(LogDetail.ALL)
-            .build();
-
-    private final ResponseSpecification responseSpecification = new ResponseSpecBuilder()
-            .log(LogDetail.ALL)
-            .build();
+    private RequestSpecification requestSpecification;
+    private ResponseSpecification responseSpecification;
 
     @Autowired
     private UserStorage userStorage;
@@ -67,6 +65,20 @@ public class CryptoWalletControllerTest {
         userStorage.save(new User(USER_LOGIN, USER_EMAIL, USER_PASSWORD));
     }
 
+    @PostConstruct
+    public void setSpecification() {
+        requestSpecification = new RequestSpecBuilder()
+                .setPort(port)
+                .setBasePath("/cryptowallet")
+                .setContentType(ContentType.JSON)
+                .log(LogDetail.ALL)
+                .build();
+
+        responseSpecification = new ResponseSpecBuilder()
+                .log(LogDetail.ALL)
+                .build();
+    }
+
     @Test
     public void createWalletSuccess() {
         CryptoWalletCreateDto walletCreateDto = new CryptoWalletCreateDto(USER_LOGIN, BTC.getDescription());
@@ -75,7 +87,7 @@ public class CryptoWalletControllerTest {
                 .post()
                 .then()
                 .spec(responseSpecification)
-                .statusCode(201)
+                .statusCode(HttpStatus.CREATED.value())
                 .extract()
                 .body()
                 .as(new TypeRef<>() {
@@ -94,7 +106,7 @@ public class CryptoWalletControllerTest {
                 .post()
                 .then()
                 .spec(responseSpecification)
-                .statusCode(404);
+                .statusCode(HttpStatus.NOT_FOUND.value());
         Stream<CryptoWallet> allUserWallet = walletStorage.getAllUserWallet(NOT_EXIST_USER_LOGIN);
         assertTrue(allUserWallet.findAny().isEmpty());
     }
@@ -107,7 +119,7 @@ public class CryptoWalletControllerTest {
                 .post()
                 .then()
                 .spec(responseSpecification)
-                .statusCode(404);
+                .statusCode(HttpStatus.NOT_FOUND.value());
         Stream<CryptoWallet> allUserWallet = walletStorage.getAllUserWallet(USER_LOGIN);
         assertTrue(allUserWallet.findAny().isEmpty());
     }
@@ -120,7 +132,7 @@ public class CryptoWalletControllerTest {
                 .queryParams(Map.of("username", USER_LOGIN))
                 .get()
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
                 .as(new TypeRef<>() {
@@ -139,7 +151,7 @@ public class CryptoWalletControllerTest {
                 .post("/refill")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(204);
+                .statusCode(HttpStatus.NO_CONTENT.value());
         BigDecimal balanceInBTC = walletStorage.getById(newWalletId).get().getBalance();
         assertEquals(0, balanceInBTC.compareTo(new BigDecimal("0.01")));
     }
@@ -154,7 +166,7 @@ public class CryptoWalletControllerTest {
                 .post("/refill")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(404);
+                .statusCode(HttpStatus.NOT_FOUND.value());
         assertTrue(walletStorage.getById(newWalletId).isEmpty());
     }
 
@@ -168,7 +180,7 @@ public class CryptoWalletControllerTest {
                 .post("/withdrawal")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(404);
+                .statusCode(HttpStatus.NOT_FOUND.value());
         assertTrue(walletStorage.getById(newWalletId).isEmpty());
     }
 
@@ -183,7 +195,7 @@ public class CryptoWalletControllerTest {
                 .post("/withdrawal")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
                 .asString();
@@ -203,7 +215,7 @@ public class CryptoWalletControllerTest {
                 .post("/withdrawal")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(400);
+                .statusCode(HttpStatus.BAD_REQUEST.value());
         CryptoWallet wallet = walletStorage.getById(newWalletId).get();
         assertEquals(0, wallet.getBalance().compareTo(BigDecimal.ZERO));
     }
@@ -218,7 +230,7 @@ public class CryptoWalletControllerTest {
                 .get("/balance/{id}")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
                 .as(BigDecimal.class);
@@ -234,7 +246,7 @@ public class CryptoWalletControllerTest {
                 .get("/balance")
                 .then()
                 .spec(responseSpecification)
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
                 .as(BigDecimal.class);

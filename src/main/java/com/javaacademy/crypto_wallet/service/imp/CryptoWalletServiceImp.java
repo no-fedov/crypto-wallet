@@ -27,7 +27,8 @@ import static java.math.BigDecimal.ZERO;
 @RequiredArgsConstructor
 public class CryptoWalletServiceImp implements CryptoWalletService {
 
-    private final static String TEMPLATE_FOR_CURRENCY_SALE = "Операция прошла успешно. Продано %s %s.";
+    private static final String TEMPLATE_FOR_CURRENCY_SALE = "Операция прошла успешно. Продано %s %s.";
+    private static final int SCALE_FOR_ROUND_OPERATION = 10;
 
     private final CryptoWalletMapper walletMapper;
     private final UserRepository userRepository;
@@ -109,7 +110,7 @@ public class CryptoWalletServiceImp implements CryptoWalletService {
     private BigDecimal calculateTransactionCostInCurrency(String currency, BigDecimal rubleAmount) {
         BigDecimal rateInUSD = dollarConverterService.getCostInUSD(currency);
         BigDecimal transactionCostInUSD = rubleConverterService.convertToUSD(rubleAmount);
-        return transactionCostInUSD.divide(rateInUSD, 10, RoundingMode.HALF_DOWN);
+        return transactionCostInUSD.divide(rateInUSD, SCALE_FOR_ROUND_OPERATION, RoundingMode.HALF_DOWN);
     }
 
     private BigDecimal convertWalletBalanceToRuble(String currency, BigDecimal walletBalance) {

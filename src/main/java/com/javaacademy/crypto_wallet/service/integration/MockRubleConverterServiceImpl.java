@@ -12,6 +12,8 @@ import java.math.RoundingMode;
 @Profile("local")
 public class MockRubleConverterServiceImpl implements RubleConverterService {
 
+    private static final int SCALE_FOR_ROUND_OPERATION = 10;
+
     @Value("${app.converter.usd.price}")
     private BigDecimal priceUSDinRUB;
 
@@ -22,6 +24,6 @@ public class MockRubleConverterServiceImpl implements RubleConverterService {
 
     @Override
     public BigDecimal convertToUSD(BigDecimal quantityRUB) {
-        return quantityRUB.divide(priceUSDinRUB, 10, RoundingMode.HALF_DOWN);
+        return quantityRUB.divide(priceUSDinRUB, SCALE_FOR_ROUND_OPERATION, RoundingMode.HALF_DOWN);
     }
 }
